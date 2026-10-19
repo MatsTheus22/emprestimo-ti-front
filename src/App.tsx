@@ -1,17 +1,19 @@
-import type { Env } from './config/env';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router';
+import { AuthContext, type AuthGateway } from './auth/auth';
+import { createRoutes } from './app/routes';
 
-// Página temporária da fundação; a tela de Login entra na L12.
-export function App({ env }: { env: Env }) {
+export function App({ auth }: { auth: AuthGateway }) {
+  const [queryClient] = useState(() => new QueryClient());
+  const [router] = useState(() => createBrowserRouter(createRoutes(auth)));
+
   return (
-    <main style={{ padding: '36px 40px 64px', display: 'grid', gap: 12 }}>
-      <span className="nav-brand">
-        <span className="brand-mark" aria-hidden />
-        <span>
-          EMPREST<span style={{ color: 'var(--color-accent)' }}>.AI</span>
-        </span>
-      </span>
-      <p style={{ color: 'var(--color-text-55)' }}>Front de pé. API em {env.VITE_API_BASE_URL}</p>
-    </main>
+    <AuthContext value={auth}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </AuthContext>
   );
 }
 
