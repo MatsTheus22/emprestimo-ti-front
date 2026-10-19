@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App, EnvErrorScreen } from './App';
 import { InvalidEnvError, loadEnv } from './config/env';
+import './styles/nocturne.css';
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 
