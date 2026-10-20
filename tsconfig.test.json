@@ -1,0 +1,11 @@
+{
+  // Testes rodam no Node (Vitest): têm tipos do Node, que o código do
+  // navegador (tsconfig.app.json) não deve enxergar.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+  "exclude": []
+}
