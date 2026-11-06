@@ -52,6 +52,12 @@ describe('nocturne.css', () => {
     '.nav',
     '.nav-brand',
     '.nav-tab',
+    // Spec 004: modal do layout.md §5.6.
+    '.dialog-backdrop',
+    '.dialog',
+    '.dialog-title',
+    '.dialog-body',
+    '.dialog-actions',
   ])('test_ca_12_define_a_classe_%s', (selector) => {
     expect(css).toMatch(new RegExp(`\\${selector}\\s*[{,:]`));
   });

@@ -1,5 +1,5 @@
-import { ApiError } from '../api/http';
 import { type MeDtoOutput, useMeControllerGet } from '../api/generated';
+import { retryUnlessDenied } from '../api/retry';
 
 export type Me = MeDtoOutput;
 
@@ -9,9 +9,7 @@ export function useMe() {
   return useMeControllerGet({
     query: {
       select: (response) => response.data as Me,
-      // 401/403 não melhoram tentando de novo.
-      retry: (failures, error) =>
-        !(error instanceof ApiError && [401, 403].includes(error.status)) && failures < 2,
+      retry: retryUnlessDenied,
     },
   });
 }

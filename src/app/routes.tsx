@@ -1,6 +1,7 @@
 import { Navigate, redirect, type RouteObject, useOutletContext } from 'react-router';
 import type { AuthGateway } from '../auth/auth';
 import type { Me } from '../auth/use-me';
+import { CatalogPage } from '../pages/CatalogPage';
 import { LoginPage } from '../pages/LoginPage';
 import { UnderConstruction } from '../pages/UnderConstruction';
 import { AppShell } from './AppShell';
@@ -21,7 +22,7 @@ export function createRoutes(auth: AuthGateway): RouteObject[] {
       element: <AppShell />,
       children: [
         { index: true, element: <HomeRedirect /> },
-        { path: 'catalogo', element: <UnderConstruction title="Catálogo" /> },
+        { path: 'catalogo', element: <CatalogPage /> },
         { path: 'meus-emprestimos', element: <UnderConstruction title="Meus empréstimos" /> },
         { path: 'operacoes', element: <UnderConstruction title="Operações" /> },
         { path: 'equipamentos', element: <UnderConstruction title="Equipamentos" /> },

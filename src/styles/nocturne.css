@@ -293,6 +293,45 @@ p {
   box-shadow: var(--shadow-lg);
 }
 
+/* ---------- Modal (§5.6) ---------- */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 11, 18, 0.68);
+}
+
+.dialog {
+  width: 420px;
+  max-width: 100%;
+  display: grid;
+  gap: 14px;
+  padding: 26px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.18s ease both;
+}
+
+.dialog-title {
+  font-size: 20px;
+}
+
+.dialog-body {
+  color: var(--color-text-62);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 /* ---------- Navegação (§6) ---------- */
 
 .nav {

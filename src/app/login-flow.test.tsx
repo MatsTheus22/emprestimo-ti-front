@@ -63,9 +63,15 @@ function problem(status: number, title: string, detail: string) {
 
 // Imita GET /v1/me da API: lê o Bearer e responde como o back.
 const fetchMock = vi.fn((url: string, init?: RequestInit) => {
-  expect(url).toBe('http://api.test/v1/me');
   const token = new Headers(init?.headers).get('Authorization')?.replace('Bearer ', '');
   if (!token) return Promise.resolve(problem(401, 'Unauthorized', 'Token ausente'));
+  // Spec 004: a tela Catálogo substitui o "Em construção" do CA-07 da spec 002.
+  if (url === 'http://api.test/v1/equipment') {
+    return Promise.resolve(
+      Response.json({ items: [], nextCursor: null, totals: { total: 0, available: 0 } }),
+    );
+  }
+  expect(url).toBe('http://api.test/v1/me');
   const me = ME[token];
   if (!me) return Promise.resolve(problem(403, 'Forbidden', NO_ACCESS));
   return Promise.resolve(Response.json(me));
@@ -136,7 +142,7 @@ describe('login', () => {
     expect(screen.getByText('Colaborador')).toBeTruthy();
     expect(screen.getByText('AR')).toBeTruthy();
     expect(screen.getByText('Ana Ribeiro')).toBeTruthy();
-    expect(screen.getByText('Em construção.')).toBeTruthy();
+    expect(screen.queryByText('Em construção.')).toBeNull();
   });
 
   it('test_ca_07_operacoes_entra_e_cai_em_operacoes_com_quatro_abas', async () => {
@@ -147,6 +153,7 @@ describe('login', () => {
     expect(await screen.findByRole('heading', { name: 'Operações' })).toBeTruthy();
     expect(router.state.location.pathname).toBe('/operacoes');
     expect(tabs()).toEqual(['Catálogo', 'Operações', 'Equipamentos', 'Meus empréstimos']);
+    expect(screen.getByText('Em construção.')).toBeTruthy();
   });
 
   it('test_ca_07_colaborador_nao_abre_aba_de_operacoes_pela_url', async () => {
@@ -160,7 +167,8 @@ describe('login', () => {
     renderApp(fakeAuth('tok-ana'), '/catalogo');
 
     expect(await screen.findByRole('heading', { name: 'Catálogo' })).toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledOnce();
+    const chamadasDoMe = fetchMock.mock.calls.filter(([url]) => url.endsWith('/v1/me'));
+    expect(chamadasDoMe).toHaveLength(1);
   });
 
   it('test_ca_08_sair_encerra_a_sessao_e_volta_ao_login', async () => {
