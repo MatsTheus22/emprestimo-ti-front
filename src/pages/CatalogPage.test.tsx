@@ -209,9 +209,9 @@ describe('tela do catálogo', () => {
     abrir();
     await card('TI-0001');
 
-    const [url, init] = fetchMock.mock.calls[0] ?? [];
-    expect(url).toBe('http://api.test/v1/equipment');
-    expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer tok');
+    const chamada = fetchMock.mock.calls.find(([url]) => url.includes('/v1/equipment'));
+    expect(chamada?.[0]).toBe('http://api.test/v1/equipment');
+    expect(new Headers(chamada?.[1]?.headers).get('Authorization')).toBe('Bearer tok');
   });
 
   it('test_ca_07_sem_proxima_pagina_nao_mostra_carregar_mais', async () => {

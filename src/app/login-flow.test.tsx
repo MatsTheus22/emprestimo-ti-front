@@ -71,6 +71,11 @@ const fetchMock = vi.fn((url: string, init?: RequestInit) => {
       Response.json({ items: [], nextCursor: null, totals: { total: 0, available: 0 } }),
     );
   }
+  if (url === 'http://api.test/v1/loans/me') {
+    return Promise.resolve(
+      Response.json({ items: [], nextCursor: null, totals: { open: 0, overdue: 0 } }),
+    );
+  }
   expect(url).toBe('http://api.test/v1/me');
   const me = ME[token];
   if (!me) return Promise.resolve(problem(403, 'Forbidden', NO_ACCESS));

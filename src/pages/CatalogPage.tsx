@@ -1,16 +1,35 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+import { Link } from 'react-router';
 import {
   equipmentControllerList,
   type EquipmentListDtoOutput,
   getEquipmentControllerListQueryKey,
 } from '../api/generated';
 import { retryUnlessDenied } from '../api/retry';
+import { formatDate } from '../app/format-date';
 import { StatusPill } from '../app/StatusPill';
-import { CATEGORY_LABEL, type CatalogItem, cardState } from '../catalog/card-state';
+import { Toast } from '../app/Toast';
+import {
+  type Bloqueio,
+  bloqueioDe,
+  CATEGORY_LABEL,
+  type CatalogItem,
+  cardState,
+} from '../catalog/card-state';
 import { equipmentImageUrl } from '../catalog/image-url';
+import { RequestLoanDialog } from '../catalog/RequestLoanDialog';
+import { useMyLoans } from '../loans/use-my-loans';
 
-// layout.md §5.2 · spec 004 CA-07. Busca e filtros ficam fora desta versão.
+// layout.md §5.2 · spec 004 CA-07 e CA-13. Busca e filtros ficam fora desta versão.
 export function CatalogPage() {
+  const [solicitando, setSolicitando] = useState<CatalogItem | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const limparAviso = useCallback(() => setAviso(null), []);
+  // A API é quem garante as regras; isto só antecipa o motivo na tela.
+  const totaisMeus = useMyLoans().data?.totals;
+  const bloqueio = bloqueioDe(totaisMeus);
+
   const catalogo = useInfiniteQuery({
     queryKey: getEquipmentControllerListQueryKey(),
     queryFn: async ({ pageParam }) => {
@@ -37,6 +56,8 @@ export function CatalogPage() {
         {catalogo.data && <Contagem totals={catalogo.data.pages.at(-1)?.totals} />}
       </header>
 
+      {(totaisMeus?.overdue ?? 0) > 0 && <BannerDeAtraso />}
+
       {catalogo.isPending && <p style={{ color: 'var(--color-text-55)' }}>Carregando…</p>}
 
       {catalogo.isError && (
@@ -52,7 +73,13 @@ export function CatalogPage() {
         </div>
       )}
 
-      {catalogo.data && <Grade itens={catalogo.data.pages.flatMap((pagina) => pagina.items)} />}
+      {catalogo.data && (
+        <Grade
+          itens={catalogo.data.pages.flatMap((pagina) => pagina.items)}
+          bloqueio={bloqueio}
+          onSolicitar={setSolicitando}
+        />
+      )}
 
       {catalogo.hasNextPage && (
         <button
@@ -78,7 +105,45 @@ export function CatalogPage() {
           Pixabay
         </a>
       </p>
+
+      {solicitando && (
+        <RequestLoanDialog
+          item={solicitando}
+          onClose={() => setSolicitando(null)}
+          onCreated={(loan) => {
+            setSolicitando(null);
+            setAviso(`Empréstimo criado. Devolver até ${formatDate(loan.dueAt)}.`);
+          }}
+        />
+      )}
+      {aviso && <Toast message={aviso} onDone={limparAviso} />}
     </main>
+  );
+}
+
+// layout.md §1 e §7.5.
+function BannerDeAtraso() {
+  return (
+    <div
+      role="alert"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: 12,
+        padding: '12px 16px',
+        border: '1px solid #7a3b3b',
+        borderRadius: 'var(--radius-md)',
+        background: 'rgba(122, 59, 59, 0.14)',
+        color: 'var(--status-error-fg)',
+        fontSize: 13.5,
+      }}
+    >
+      <span>Você tem empréstimo em atraso e não pode solicitar outro.</span>
+      <Link to="/meus-emprestimos" style={{ color: 'inherit' }}>
+        Ver meus empréstimos
+      </Link>
+    </div>
   );
 }
 
@@ -91,7 +156,15 @@ function Contagem({ totals }: { totals?: EquipmentListDtoOutput['totals'] }) {
   );
 }
 
-function Grade({ itens }: { itens: CatalogItem[] }) {
+function Grade({
+  itens,
+  bloqueio,
+  onSolicitar,
+}: {
+  itens: CatalogItem[];
+  bloqueio: Bloqueio | null;
+  onSolicitar: (item: CatalogItem) => void;
+}) {
   if (itens.length === 0) {
     return <p style={{ color: 'var(--color-text-55)' }}>Nenhum equipamento cadastrado.</p>;
   }
@@ -104,14 +177,27 @@ function Grade({ itens }: { itens: CatalogItem[] }) {
       }}
     >
       {itens.map((item) => (
-        <Card key={item.id} item={item} />
+        <Card
+          key={item.id}
+          item={item}
+          bloqueio={bloqueio}
+          onSolicitar={() => onSolicitar(item)}
+        />
       ))}
     </div>
   );
 }
 
-function Card({ item }: { item: CatalogItem }) {
-  const { statusLabel, tone, detail, action } = cardState(item);
+function Card({
+  item,
+  bloqueio,
+  onSolicitar,
+}: {
+  item: CatalogItem;
+  bloqueio: Bloqueio | null;
+  onSolicitar: () => void;
+}) {
+  const { statusLabel, tone, detail, action } = cardState(item, bloqueio);
 
   return (
     <article
@@ -141,6 +227,7 @@ function Card({ item }: { item: CatalogItem }) {
         className={`btn ${action.enabled ? 'btn-primary' : 'btn-secondary'} btn-block`}
         style={{ marginTop: 'auto' }}
         disabled={!action.enabled}
+        onClick={onSolicitar}
       >
         {action.label}
       </button>
