@@ -3,6 +3,7 @@ import type { AuthGateway } from '../auth/auth';
 import type { Me } from '../auth/use-me';
 import { CatalogPage } from '../pages/CatalogPage';
 import { LoginPage } from '../pages/LoginPage';
+import { MyLoansPage } from '../pages/MyLoansPage';
 import { UnderConstruction } from '../pages/UnderConstruction';
 import { AppShell } from './AppShell';
 import { HOME_BY_ROLE } from './navigation';
@@ -23,7 +24,7 @@ export function createRoutes(auth: AuthGateway): RouteObject[] {
       children: [
         { index: true, element: <HomeRedirect /> },
         { path: 'catalogo', element: <CatalogPage /> },
-        { path: 'meus-emprestimos', element: <UnderConstruction title="Meus empréstimos" /> },
+        { path: 'meus-emprestimos', element: <MyLoansPage /> },
         { path: 'operacoes', element: <UnderConstruction title="Operações" /> },
         { path: 'equipamentos', element: <UnderConstruction title="Equipamentos" /> },
       ],

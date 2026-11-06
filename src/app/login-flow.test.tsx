@@ -168,6 +168,19 @@ describe('login', () => {
     expect(router.state.location.pathname).toBe('/catalogo');
   });
 
+  // Spec 004: a tela substitui o "Em construção" do CA-07 da spec 002.
+  it('test_ca_16_aba_meus_emprestimos_abre_a_tela', async () => {
+    const router = renderApp(fakeAuth('tok-ana'), '/catalogo');
+
+    await userEvent
+      .setup()
+      .click(await screen.findByRole('link', { name: 'Meus empréstimos' }));
+
+    expect(await screen.findByRole('heading', { name: 'Meus empréstimos' })).toBeTruthy();
+    expect(router.state.location.pathname).toBe('/meus-emprestimos');
+    expect(screen.queryByText('Em construção.')).toBeNull();
+  });
+
   it('test_ca_08_sessao_existente_entra_direto_sem_login', async () => {
     renderApp(fakeAuth('tok-ana'), '/catalogo');
 
