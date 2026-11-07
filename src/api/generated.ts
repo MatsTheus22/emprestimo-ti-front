@@ -5,16 +5,20 @@
  * OpenAPI spec version: 1
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -66,6 +70,181 @@ export interface MeDtoOutput {
   role: MeDtoOutputRole;
   tenant: MeDtoOutputTenant;
 }
+
+export type EquipmentListDtoOutputItemsItemCategory = typeof EquipmentListDtoOutputItemsItemCategory[keyof typeof EquipmentListDtoOutputItemsItemCategory];
+
+
+export const EquipmentListDtoOutputItemsItemCategory = {
+  notebook: 'notebook',
+  monitor: 'monitor',
+  cabo: 'cabo',
+  camera: 'camera',
+} as const;
+
+export type EquipmentListDtoOutputItemsItemStatus = typeof EquipmentListDtoOutputItemsItemStatus[keyof typeof EquipmentListDtoOutputItemsItemStatus];
+
+
+export const EquipmentListDtoOutputItemsItemStatus = {
+  disponivel: 'disponivel',
+  emprestado: 'emprestado',
+  manutencao: 'manutencao',
+} as const;
+
+/**
+ * @nullable
+ */
+export type EquipmentListDtoOutputItemsItemMyLoan = {
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$ */
+  dueAt: string;
+} | null;
+
+export type EquipmentListDtoOutputItemsItem = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  id: string;
+  assetTag: string;
+  name: string;
+  category: EquipmentListDtoOutputItemsItemCategory;
+  status: EquipmentListDtoOutputItemsItemStatus;
+  /**
+     * @minLength 1
+     * @nullable
+     */
+  imagePath: string | null;
+  /** @nullable */
+  myLoan: EquipmentListDtoOutputItemsItemMyLoan;
+};
+
+export type EquipmentListDtoOutputTotals = {
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+  total: number;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+  available: number;
+};
+
+export interface EquipmentListDtoOutput {
+  items: EquipmentListDtoOutputItemsItem[];
+  /**
+     * @minLength 1
+     * @nullable
+     */
+  nextCursor: string | null;
+  totals: EquipmentListDtoOutputTotals;
+}
+
+export interface CreateLoanDto {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  equipmentId: string;
+}
+
+export type LoanDtoOutputEquipmentCategory = typeof LoanDtoOutputEquipmentCategory[keyof typeof LoanDtoOutputEquipmentCategory];
+
+
+export const LoanDtoOutputEquipmentCategory = {
+  notebook: 'notebook',
+  monitor: 'monitor',
+  cabo: 'cabo',
+  camera: 'camera',
+} as const;
+
+export type LoanDtoOutputEquipment = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  id: string;
+  assetTag: string;
+  name: string;
+  category: LoanDtoOutputEquipmentCategory;
+};
+
+export interface LoanDtoOutput {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  id: string;
+  equipment: LoanDtoOutputEquipment;
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$ */
+  borrowedAt: string;
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$ */
+  dueAt: string;
+}
+
+export type MyLoansDtoOutputItemsItemEquipmentCategory = typeof MyLoansDtoOutputItemsItemEquipmentCategory[keyof typeof MyLoansDtoOutputItemsItemEquipmentCategory];
+
+
+export const MyLoansDtoOutputItemsItemEquipmentCategory = {
+  notebook: 'notebook',
+  monitor: 'monitor',
+  cabo: 'cabo',
+  camera: 'camera',
+} as const;
+
+export type MyLoansDtoOutputItemsItemEquipment = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  id: string;
+  assetTag: string;
+  name: string;
+  category: MyLoansDtoOutputItemsItemEquipmentCategory;
+};
+
+export type MyLoansDtoOutputItemsItem = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  id: string;
+  equipment: MyLoansDtoOutputItemsItemEquipment;
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$ */
+  borrowedAt: string;
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$ */
+  dueAt: string;
+  overdue: boolean;
+};
+
+export type MyLoansDtoOutputTotals = {
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+  open: number;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+  overdue: number;
+};
+
+export interface MyLoansDtoOutput {
+  items: MyLoansDtoOutputItemsItem[];
+  /**
+     * @minLength 1
+     * @nullable
+     */
+  nextCursor: string | null;
+  totals: MyLoansDtoOutputTotals;
+}
+
+export type EquipmentControllerListParams = {
+/**
+ * @minLength 1
+ */
+cursor?: string;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type LoansControllerListMineParams = {
+/**
+ * @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+ */
+cursor?: string;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -300,6 +479,389 @@ export function useMeControllerGet<TData = Awaited<ReturnType<typeof meControlle
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getMeControllerGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type equipmentControllerListResponse200 = {
+  data: EquipmentListDtoOutput
+  status: 200
+}
+
+export type equipmentControllerListResponse400 = {
+  data: ProblemDetailsDto
+  status: 400
+}
+
+export type equipmentControllerListResponse401 = {
+  data: ProblemDetailsDto
+  status: 401
+}
+
+export type equipmentControllerListResponse403 = {
+  data: ProblemDetailsDto
+  status: 403
+}
+
+export type equipmentControllerListResponseSuccess = (equipmentControllerListResponse200) & {
+  headers: Headers;
+};
+export type equipmentControllerListResponseError = (equipmentControllerListResponse400 | equipmentControllerListResponse401 | equipmentControllerListResponse403) & {
+  headers: Headers;
+};
+
+export type equipmentControllerListResponse = (equipmentControllerListResponseSuccess | equipmentControllerListResponseError)
+
+export const getEquipmentControllerListUrl = (params?: EquipmentControllerListParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/v1/equipment?${stringifiedParams}` : `/v1/equipment`
+}
+
+export const equipmentControllerList = async (params?: EquipmentControllerListParams, options?: Parameters<typeof apiFetch>[1]): Promise<equipmentControllerListResponse> => {
+
+  return apiFetch<equipmentControllerListResponse>(getEquipmentControllerListUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getEquipmentControllerListQueryKey = (params?: EquipmentControllerListParams,) => {
+    return [
+    `/v1/equipment`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getEquipmentControllerListQueryOptions = <TData = Awaited<ReturnType<typeof equipmentControllerList>>, TError = ProblemDetailsDto>(params?: EquipmentControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getEquipmentControllerListQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof equipmentControllerList>>> = ({ signal }) => equipmentControllerList(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type EquipmentControllerListQueryResult = NonNullable<Awaited<ReturnType<typeof equipmentControllerList>>>
+export type EquipmentControllerListQueryError = ProblemDetailsDto
+
+
+export function useEquipmentControllerList<TData = Awaited<ReturnType<typeof equipmentControllerList>>, TError = ProblemDetailsDto>(
+ params: undefined |  EquipmentControllerListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof equipmentControllerList>>,
+          TError,
+          Awaited<ReturnType<typeof equipmentControllerList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useEquipmentControllerList<TData = Awaited<ReturnType<typeof equipmentControllerList>>, TError = ProblemDetailsDto>(
+ params?: EquipmentControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof equipmentControllerList>>,
+          TError,
+          Awaited<ReturnType<typeof equipmentControllerList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useEquipmentControllerList<TData = Awaited<ReturnType<typeof equipmentControllerList>>, TError = ProblemDetailsDto>(
+ params?: EquipmentControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useEquipmentControllerList<TData = Awaited<ReturnType<typeof equipmentControllerList>>, TError = ProblemDetailsDto>(
+ params?: EquipmentControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof equipmentControllerList>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getEquipmentControllerListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type loansControllerCreateResponse201 = {
+  data: LoanDtoOutput
+  status: 201
+}
+
+export type loansControllerCreateResponse400 = {
+  data: ProblemDetailsDto
+  status: 400
+}
+
+export type loansControllerCreateResponse401 = {
+  data: ProblemDetailsDto
+  status: 401
+}
+
+export type loansControllerCreateResponse403 = {
+  data: ProblemDetailsDto
+  status: 403
+}
+
+export type loansControllerCreateResponse404 = {
+  data: ProblemDetailsDto
+  status: 404
+}
+
+export type loansControllerCreateResponse409 = {
+  data: ProblemDetailsDto
+  status: 409
+}
+
+export type loansControllerCreateResponseSuccess = (loansControllerCreateResponse201) & {
+  headers: Headers;
+};
+export type loansControllerCreateResponseError = (loansControllerCreateResponse400 | loansControllerCreateResponse401 | loansControllerCreateResponse403 | loansControllerCreateResponse404 | loansControllerCreateResponse409) & {
+  headers: Headers;
+};
+
+export type loansControllerCreateResponse = (loansControllerCreateResponseSuccess | loansControllerCreateResponseError)
+
+export const getLoansControllerCreateUrl = () => {
+
+
+
+
+  return `/v1/loans`
+}
+
+export const loansControllerCreate = async (createLoanDto: CreateLoanDto, options?: Parameters<typeof apiFetch>[1]): Promise<loansControllerCreateResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return apiFetch<loansControllerCreateResponse>(getLoansControllerCreateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createLoanDto)
+  }
+);}
+
+
+
+
+
+export const getLoansControllerCreateMutationKey = () => ['loansControllerCreate'] as const;
+
+export const getLoansControllerCreateMutationOptions = <TError = ProblemDetailsDto,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loansControllerCreate>>, TError,LoansControllerCreateMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loansControllerCreate>>, TError,LoansControllerCreateMutationVariables, TContext> => {
+
+const mutationKey = getLoansControllerCreateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loansControllerCreate>>, LoansControllerCreateMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  loansControllerCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoansControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof loansControllerCreate>>>
+    export type LoansControllerCreateMutationBody = CreateLoanDto
+    export type LoansControllerCreateMutationError = ProblemDetailsDto
+    export type LoansControllerCreateMutationVariables = {data: CreateLoanDto}
+
+    export const useLoansControllerCreate = <TError = ProblemDetailsDto,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loansControllerCreate>>, TError,LoansControllerCreateMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof loansControllerCreate>>,
+        TError,
+        LoansControllerCreateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getLoansControllerCreateMutationOptions(options), queryClient);
+    }
+
+export type loansControllerListMineResponse200 = {
+  data: MyLoansDtoOutput
+  status: 200
+}
+
+export type loansControllerListMineResponse400 = {
+  data: ProblemDetailsDto
+  status: 400
+}
+
+export type loansControllerListMineResponse401 = {
+  data: ProblemDetailsDto
+  status: 401
+}
+
+export type loansControllerListMineResponse403 = {
+  data: ProblemDetailsDto
+  status: 403
+}
+
+export type loansControllerListMineResponseSuccess = (loansControllerListMineResponse200) & {
+  headers: Headers;
+};
+export type loansControllerListMineResponseError = (loansControllerListMineResponse400 | loansControllerListMineResponse401 | loansControllerListMineResponse403) & {
+  headers: Headers;
+};
+
+export type loansControllerListMineResponse = (loansControllerListMineResponseSuccess | loansControllerListMineResponseError)
+
+export const getLoansControllerListMineUrl = (params?: LoansControllerListMineParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/v1/loans/me?${stringifiedParams}` : `/v1/loans/me`
+}
+
+export const loansControllerListMine = async (params?: LoansControllerListMineParams, options?: Parameters<typeof apiFetch>[1]): Promise<loansControllerListMineResponse> => {
+
+  return apiFetch<loansControllerListMineResponse>(getLoansControllerListMineUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getLoansControllerListMineQueryKey = (params?: LoansControllerListMineParams,) => {
+    return [
+    `/v1/loans/me`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getLoansControllerListMineQueryOptions = <TData = Awaited<ReturnType<typeof loansControllerListMine>>, TError = ProblemDetailsDto>(params?: LoansControllerListMineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLoansControllerListMineQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof loansControllerListMine>>> = ({ signal }) => loansControllerListMine(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type LoansControllerListMineQueryResult = NonNullable<Awaited<ReturnType<typeof loansControllerListMine>>>
+export type LoansControllerListMineQueryError = ProblemDetailsDto
+
+
+export function useLoansControllerListMine<TData = Awaited<ReturnType<typeof loansControllerListMine>>, TError = ProblemDetailsDto>(
+ params: undefined |  LoansControllerListMineParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof loansControllerListMine>>,
+          TError,
+          Awaited<ReturnType<typeof loansControllerListMine>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLoansControllerListMine<TData = Awaited<ReturnType<typeof loansControllerListMine>>, TError = ProblemDetailsDto>(
+ params?: LoansControllerListMineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof loansControllerListMine>>,
+          TError,
+          Awaited<ReturnType<typeof loansControllerListMine>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLoansControllerListMine<TData = Awaited<ReturnType<typeof loansControllerListMine>>, TError = ProblemDetailsDto>(
+ params?: LoansControllerListMineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useLoansControllerListMine<TData = Awaited<ReturnType<typeof loansControllerListMine>>, TError = ProblemDetailsDto>(
+ params?: LoansControllerListMineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof loansControllerListMine>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getLoansControllerListMineQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -6,5 +6,5 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   server: { port: 5173, strictPort: true }, // CORS_ORIGIN do back aponta para cá
-  test: { environment: 'node' },
+  test: { environment: 'node', testTimeout: 30_000, setupFiles: ['./src/test-setup.ts'] },
 });
